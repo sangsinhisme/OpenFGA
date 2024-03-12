@@ -1,5 +1,6 @@
 package vn.fpt.web.exceptions;
 
+import jakarta.ws.rs.NotFoundException;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.ext.ExceptionMapper;
 import jakarta.ws.rs.ext.Provider;
@@ -10,19 +11,16 @@ import java.util.UUID;
 
 @Slf4j
 @Provider
-public class URISyntaxExceptionMapper implements ExceptionMapper<URISyntaxException> {
+public class NotFoundExceptionMapper implements ExceptionMapper<NotFoundException> {
 
     @Override
-    public Response toResponse(URISyntaxException ex) {
+    public Response toResponse(NotFoundException ex) {
         String errorId = UUID.randomUUID().toString();
 
         log.error(errorId, ex.getMessage());
 
-        ErrorResponse.ErrorMessage errorMessage = new ErrorResponse.ErrorMessage(ex.getMessage());
-        ErrorResponse errorResponse = new ErrorResponse(errorId, errorMessage);
         return Response
                 .status(Response.Status.NOT_FOUND)
-                .entity(errorResponse)
                 .build();
     }
 

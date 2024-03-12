@@ -17,6 +17,9 @@ public class ErrorsHandler
     @Override
     public Response toResponse(Throwable ex) {
         String errorId = UUID.randomUUID().toString();
+
+        log.error(errorId, ex.getMessage());
+
         String defaultErrorMessage = ResourceBundle.getBundle("validation-messages").getString("system.error");
         ErrorResponse.ErrorMessage errorMessage = new ErrorResponse.ErrorMessage(defaultErrorMessage);
         ErrorResponse errorResponse = new ErrorResponse(errorId, errorMessage);
