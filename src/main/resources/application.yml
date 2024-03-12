@@ -1,0 +1,88 @@
+application:
+  message: hello
+  secret-code: ${IAM_SECRET}
+
+quarkus:
+  log:
+    console:
+      format: "%d{HH:mm:ss} %-5p [%c{2.}] (%t) %s%e%n"
+      level: INFO
+
+    category:
+      "org.jboss.resteasy.reactive.client.logging":
+        level: DEBUG
+
+  live-reload:
+    ignore-module-info: false
+
+  hibernate-orm:
+    database:
+      generation: none
+    sql-load-script: no-file
+
+
+  http:
+    cors:
+      origins: "*"
+      methods: GET,PUT,POST
+      headers: X-Custom
+      exposed-headers: Content-Disposition
+      access-control-max-age: 24H
+      access-control-allow-credentials: true
+
+  datasource:
+    db-kind: ${PORTAL_DB_KIND}
+    username: ${PORTAL_USERNAME}
+    password: ${PORTAL_PASSWORD}
+    jdbc:
+      url: jdbc:${PORTAL_DB_KIND}://${PORTAL_HOST}:${PORTAL_PORT}/${PORTAL_DB}
+      max-size: 16
+    portal:
+      db-kind: ${PORTAL_DB_KIND}
+      username: ${PORTAL_USERNAME}
+      password: ${PORTAL_PASSWORD}
+      jdbc:
+        url: jdbc:${PORTAL_DB_KIND}://${PORTAL_HOST}:${PORTAL_PORT}/${PORTAL_DB}
+        max-size: 16
+
+#  redis:
+#    request-cache:
+#      hosts: redis://localhost:6379
+#
+#  cache:
+#    redis:
+#      client-name: request-cache
+#      expire-after-write: 10s
+#      homeControllerCache:
+#        expire-after-write: 10s
+#        key-type: "java.lang.String"
+#        value-type: "vn.fpt.ErrorMessage"
+
+  minio:
+    url: ${MINIO_URL}
+    access-key: ${MINIO_ACCESS_KEY}
+    secret-key: ${MINIO_SECRET_KEY}
+
+  rest-client:
+    logging:
+      scope: request-response
+    "vn.fpt.services.client.IamClientService":
+      url: ${IAM_CLIENT_URL}
+      scope: ${IAM_CLIENT_SCOPE}
+    "vn.fpt.services.client.DmcClientService":
+      url: ${DMC_CLIENT_URL}
+      scope: ${DMC_CLIENT_SCOPE}
+
+  tls:
+    trust-all: true
+
+  smallrye-openapi:
+    info-title: Camera Portal Service
+    info-version: 1.0.0
+    info-description: Just an example service
+    info-terms-of-service: Your terms here
+    info-contact-email: khoavd12@fpt.com
+    info-contact-name: Vu Dang Khoa
+    info-contact-url: http://aomacannada.can
+    info-license-name: Apache 2.0
+    info-license-url: https://www.apache.org/licenses/LICENSE-2.0.html
