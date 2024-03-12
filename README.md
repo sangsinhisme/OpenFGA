@@ -59,12 +59,21 @@ Easily start your Reactive RESTful Web Services
 ## Service include:
 
 Persistence with Hibernate ORM Panache
+
 Mapper with Mapstruct
+
 Define Audit Data
+
 Error Handler
+
 Middleware with Declaring Routes
+
 LogFilters
+
 RestAPI with RestEasy Jackson
+
 Rest Client
+
 Base API Stream Video with MinIO
+
 Swagger Docs
