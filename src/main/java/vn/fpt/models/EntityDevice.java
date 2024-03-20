@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import vn.fpt.config.ApplicationConfiguration;
+import vn.fpt.config.DataSourceProducer;
 import vn.fpt.models.enumeration.ActionStatus;
 
 import java.io.Serial;
@@ -17,7 +18,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @Getter
 @Setter
-@Table(name = "entity_device", schema = ApplicationConfiguration.PORTAL_SCHEMA)
+@Table(name = "entity_device")
 public class EntityDevice extends AbstractAuditingEntity implements Serializable {
 
     @Serial

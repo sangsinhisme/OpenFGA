@@ -1,9 +1,10 @@
-package vn.fpt.web.exceptions;
+package vn.fpt.web.exceptions.mappers;
 
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.ext.ExceptionMapper;
 import jakarta.ws.rs.ext.Provider;
 import lombok.extern.slf4j.Slf4j;
+import vn.fpt.web.exceptions.ErrorResponse;
 
 import java.net.URISyntaxException;
 import java.util.UUID;
@@ -16,7 +17,7 @@ public class URISyntaxExceptionMapper implements ExceptionMapper<URISyntaxExcept
     public Response toResponse(URISyntaxException ex) {
         String errorId = UUID.randomUUID().toString();
 
-        log.error(errorId, ex.getMessage());
+        log.error(errorId, ex);
 
         ErrorResponse.ErrorMessage errorMessage = new ErrorResponse.ErrorMessage(ex.getMessage());
         ErrorResponse errorResponse = new ErrorResponse(errorId, errorMessage);

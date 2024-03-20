@@ -3,10 +3,7 @@ package vn.fpt.web.rest;
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;
 import jakarta.ws.rs.*;
-import jakarta.ws.rs.core.Context;
-import jakarta.ws.rs.core.MediaType;
-import jakarta.ws.rs.core.Request;
-import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.core.*;
 import lombok.extern.slf4j.Slf4j;
 import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.media.Content;
@@ -22,15 +19,12 @@ import java.net.URI;
 import java.net.URISyntaxException;
 
 @Slf4j
-@Path("/entity-devices")
+@Path("/api/entity-devices")
 @Tag(name = "Entity Devices", description = "Entity Devices Resource")
 public class EntityDevicesResource {
 
     @Inject
     EntityDevicesService entityDevicesService;
-
-    @Context
-    Request request;
 
     @POST
     @Operation(
@@ -55,7 +49,8 @@ public class EntityDevicesResource {
             description = "Entity Device to create",
             required = true,
             content = @Content(schema = @Schema(implementation = CreateEntityDTO.class)))
-                           @Valid CreateEntityDTO dto) throws URISyntaxException {
+                           @Valid CreateEntityDTO dto,
+                           @Context SecurityContext securityContext) throws URISyntaxException {
 
         entityDevicesService.create(dto);
         return Response

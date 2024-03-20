@@ -1,30 +1,70 @@
 package vn.fpt.web.rest;
 
+import jakarta.inject.Inject;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.QueryParam;
-import jakarta.ws.rs.core.MediaType;
-import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.container.ContainerRequestContext;
+import jakarta.ws.rs.core.*;
 import lombok.extern.slf4j.Slf4j;
 import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.media.Content;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
-import org.eclipse.microprofile.rest.client.inject.RestClient;
 import vn.fpt.models.users.IamPagination;
 import vn.fpt.models.users.IamUserInfo;
-import vn.fpt.services.client.IamClientService;
+import vn.fpt.secure.AppSecurityContext;
+import vn.fpt.services.UsersService;
 import vn.fpt.web.exceptions.ErrorResponse;
+import vn.fpt.web.exceptions.ErrorsEnum;
+import vn.fpt.web.exceptions.PermissionDeniedException;
 
 @Slf4j
-@Path("/users")
+@Path("/api/users")
 @Tag(name = "Users Management", description = "Users Management AI Camera Service")
 public class UsersResource {
 
-    @RestClient
-    IamClientService iamClient;
+    @Inject
+    UsersService usersService;
+
+    @GET
+    @Path(("/invite"))
+    @Operation(
+            operationId = "inviteUser",
+            summary = "Admin invite User access AI Camera Service"
+    )
+    @APIResponse(
+            responseCode = "202"
+    )
+    @APIResponse(
+            responseCode = "400",
+            description = "Bad Request",
+            content = @Content(
+                    mediaType = MediaType.APPLICATION_JSON,
+                    schema = @Schema(implementation = ErrorResponse.class)
+            )
+    )
+    @APIResponse(
+            responseCode = "500",
+            description = "Internal Sever Error",
+            content = @Content(
+                    mediaType = MediaType.APPLICATION_JSON,
+                    schema = @Schema(implementation = ErrorResponse.class)
+            )
+    )
+    public Response inviteUser(@QueryParam("app") String app,
+                                @QueryParam("email") String email,
+                                @Context ContainerRequestContext requestContext) {
+
+        String token = requestContext.getHeaderString(HttpHeaders.AUTHORIZATION);
+
+        IamUserInfo user = usersService.check(token, app, email);
+        return Response
+                .ok(user)
+                .build();
+    }
 
     @GET
     @Operation(
@@ -50,10 +90,17 @@ public class UsersResource {
             @QueryParam("first") Integer first,
             @QueryParam("max") Integer max,
             @QueryParam("app") String app,
-            @QueryParam("order") String order) {
+            @QueryParam("order") String order,
+            @Context ContainerRequestContext requestContext) {
 
-        String token = "Bearer eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICJfei0tTW5aZGpfV0lKNjdIYTlKSmUwOVpnMzV5LTdhZnR6RWJmNm1SNUZFIn0.eyJleHAiOjE3MTAxODY3NDIsImlhdCI6MTcxMDE0MzU0MiwianRpIjoiYTRhMTI2ZTYtZGI1Yy00MmRjLTlmMTMtZjM1NWFiNGJmMGFjIiwiaXNzIjoiaHR0cHM6Ly9kZXYtY2Fkc2hvdXNlLmZwdC52bi9pYW0tYWRtaW4vYXV0aC9yZWFsbXMvbWFzdGVyIiwic3ViIjoiYzM1MDhiNTUtN2VhMi00NGI0LWE3YzAtMjJkMzA0OGJkN2I5IiwidHlwIjoiQmVhcmVyIiwiYXpwIjoiYWRtaW4tY2xpIiwic2Vzc2lvbl9zdGF0ZSI6IjZjODcwOGRkLWEwMTgtNDZlOC1iNWFlLWQ1YzQ3Mzg5MmZmOCIsImFjciI6IjEiLCJhbGxvd2VkLW9yaWdpbnMiOlsiIl0sInNjb3BlIjoiZW1haWwgcHJvZmlsZSIsInNpZCI6IjZjODcwOGRkLWEwMTgtNDZlOC1iNWFlLWQ1YzQ3Mzg5MmZmOCIsImVtYWlsX3ZlcmlmaWVkIjp0cnVlLCJuYW1lIjoiS2hvYSBWdSBEYW5nIiwicHJlZmVycmVkX3VzZXJuYW1lIjoia2hvYXZkMTIiLCJnaXZlbl9uYW1lIjoiS2hvYSIsImZhbWlseV9uYW1lIjoiVnUgRGFuZyIsImVtYWlsIjoia2hvYXZkMTJAZnB0LmNvbSJ9.oSFU_aDtN_AMFRm8WtJOjNOy_9RSUWulDdT1z8meoSvhbnBm4ER2fwXsc98hnDtMNzuhzRyCXRYMxz1DBii_qRcuXpbrDTLsZgS118d6MYusIUd0P0TdBSoRlf527jbHQF5J3S7-bRhYUlvfw0KlmKNzQIIJS8u00cHJxInr2PqS9tINCuU1RPn7YMqyPMxUvPJEzWAIPdQ1VKd4mvx5ANWrS_GnjQ6eN6WAq_raNMdzvHwfO1cbQjFlgNqo8N_c6BY4OaBZUmHuoi2lwPPVJce_jtaTV7PUYp94sTxfRfpnJHC3RYJw2zjf2_lEQ7pqiOQzA6XxUD044q0x9VaYmg";
-        IamPagination<IamUserInfo> users = iamClient.getUsers(token, first, max, app, order);
+        AppSecurityContext appContext = (AppSecurityContext) requestContext.getSecurityContext();
+
+        if(!appContext.isOwner("admin-churn"))
+            throw new PermissionDeniedException(ErrorsEnum.AUTH_NO_ACCESS);
+
+        String token = requestContext.getHeaderString(HttpHeaders.AUTHORIZATION);
+
+        IamPagination<IamUserInfo> users = usersService.getUsers(token, first, max, app, order);
         return Response
                 .ok(users)
                 .build();
@@ -81,10 +128,12 @@ public class UsersResource {
             )
     )
     public Response getUserById(@PathParam("id") String id,
-                                @QueryParam("app") String app) {
+                                @QueryParam("app") String app,
+                                @Context ContainerRequestContext requestContext) {
 
-        String token = "Bearer eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICJfei0tTW5aZGpfV0lKNjdIYTlKSmUwOVpnMzV5LTdhZnR6RWJmNm1SNUZFIn0.eyJleHAiOjE3MTAxODY3NDIsImlhdCI6MTcxMDE0MzU0MiwianRpIjoiYTRhMTI2ZTYtZGI1Yy00MmRjLTlmMTMtZjM1NWFiNGJmMGFjIiwiaXNzIjoiaHR0cHM6Ly9kZXYtY2Fkc2hvdXNlLmZwdC52bi9pYW0tYWRtaW4vYXV0aC9yZWFsbXMvbWFzdGVyIiwic3ViIjoiYzM1MDhiNTUtN2VhMi00NGI0LWE3YzAtMjJkMzA0OGJkN2I5IiwidHlwIjoiQmVhcmVyIiwiYXpwIjoiYWRtaW4tY2xpIiwic2Vzc2lvbl9zdGF0ZSI6IjZjODcwOGRkLWEwMTgtNDZlOC1iNWFlLWQ1YzQ3Mzg5MmZmOCIsImFjciI6IjEiLCJhbGxvd2VkLW9yaWdpbnMiOlsiIl0sInNjb3BlIjoiZW1haWwgcHJvZmlsZSIsInNpZCI6IjZjODcwOGRkLWEwMTgtNDZlOC1iNWFlLWQ1YzQ3Mzg5MmZmOCIsImVtYWlsX3ZlcmlmaWVkIjp0cnVlLCJuYW1lIjoiS2hvYSBWdSBEYW5nIiwicHJlZmVycmVkX3VzZXJuYW1lIjoia2hvYXZkMTIiLCJnaXZlbl9uYW1lIjoiS2hvYSIsImZhbWlseV9uYW1lIjoiVnUgRGFuZyIsImVtYWlsIjoia2hvYXZkMTJAZnB0LmNvbSJ9.oSFU_aDtN_AMFRm8WtJOjNOy_9RSUWulDdT1z8meoSvhbnBm4ER2fwXsc98hnDtMNzuhzRyCXRYMxz1DBii_qRcuXpbrDTLsZgS118d6MYusIUd0P0TdBSoRlf527jbHQF5J3S7-bRhYUlvfw0KlmKNzQIIJS8u00cHJxInr2PqS9tINCuU1RPn7YMqyPMxUvPJEzWAIPdQ1VKd4mvx5ANWrS_GnjQ6eN6WAq_raNMdzvHwfO1cbQjFlgNqo8N_c6BY4OaBZUmHuoi2lwPPVJce_jtaTV7PUYp94sTxfRfpnJHC3RYJw2zjf2_lEQ7pqiOQzA6XxUD044q0x9VaYmg";
-        IamUserInfo user = iamClient.getUserById(token, id, app);
+        String token = requestContext.getHeaderString(HttpHeaders.AUTHORIZATION);
+
+        IamUserInfo user = usersService.getUserById(token, id, app);
         return Response
                 .ok(user)
                 .build();

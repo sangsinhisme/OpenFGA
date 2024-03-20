@@ -1,8 +1,10 @@
 package vn.fpt.web.exceptions;
 
 import lombok.Getter;
+import lombok.ToString;
 
 @Getter
+@ToString
 public class ServiceException extends RuntimeException {
 
     private final String entityName;

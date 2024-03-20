@@ -1,23 +1,27 @@
 package vn.fpt.secure;
 
-import jakarta.inject.Inject;
-import jakarta.ws.rs.core.Context;
-import jakarta.ws.rs.core.SecurityContext;
+import jakarta.enterprise.context.RequestScoped;
+import lombok.extern.slf4j.Slf4j;
+import vn.fpt.models.auth.DmCUserInfo;
 
-import java.security.Principal;
-import java.util.Optional;
+import java.util.stream.Stream;
 
-public final class SecurityUtil {
+@Slf4j
+@RequestScoped
+public class SecurityUtil {
 
-    static SecurityContext securityContext;
-
-    private SecurityUtil(@Context SecurityContext securityContext) {
-        SecurityUtil.securityContext = securityContext;
+    private SecurityUtil() {
     }
 
-    public static Optional<String> getCurrentAuditor() {
-        return Optional.ofNullable(securityContext)
-                .map(SecurityContext::getUserPrincipal)
-                .map(Principal::getName);
+    public static boolean isUserHasPermission(String app, DmCUserInfo userInfo) {
+
+        Stream<DmCUserInfo.UserPermission> userPermissions = userInfo
+                .getUserPermission()
+                .stream();
+
+        return userPermissions
+                .anyMatch(userPerm ->
+                        userPerm.getName().equals(app) && !userPerm.getPermissions().isEmpty()
+                );
     }
 }

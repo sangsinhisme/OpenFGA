@@ -17,6 +17,7 @@ quarkus:
 
   hibernate-orm:
     database:
+      default-schema: ${PORTAL_SCHEMA}
       generation: none
     sql-load-script: no-file
 
@@ -72,6 +73,13 @@ quarkus:
     "vn.fpt.services.client.DmcClientService":
       url: ${DMC_CLIENT_URL}
       scope: ${DMC_CLIENT_SCOPE}
+
+  micrometer:
+    runtime:
+      binder:
+        HttpBinderConfiguration: true
+        http-client:
+          enabled: true
 
   tls:
     trust-all: true

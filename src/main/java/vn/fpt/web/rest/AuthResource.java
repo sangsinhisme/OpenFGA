@@ -3,8 +3,8 @@ package vn.fpt.web.rest;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.QueryParam;
-import jakarta.ws.rs.core.MediaType;
-import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.container.ContainerRequestContext;
+import jakarta.ws.rs.core.*;
 import lombok.extern.slf4j.Slf4j;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.eclipse.microprofile.openapi.annotations.Operation;
@@ -15,20 +15,23 @@ import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 import vn.fpt.models.auth.AuthToken;
 import vn.fpt.models.auth.DecryptAuth;
+import vn.fpt.models.auth.DmCUserInfo;
 import vn.fpt.models.users.IamPagination;
+import vn.fpt.secure.AppSecurityContext;
+import vn.fpt.secure.SecurityUtil;
 import vn.fpt.services.client.DmcClientService;
 import vn.fpt.web.exceptions.ErrorResponse;
 import vn.fpt.web.exceptions.ErrorsEnum;
+import vn.fpt.web.exceptions.PermissionDeniedException;
 import vn.fpt.web.exceptions.UnauthorizedException;
 
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-import java.util.Optional;
 
 @Slf4j
-@Path("/auth")
+@Path("/app")
 @Tag(name = "Auth Management", description = "Auth Management AI Camera Service")
 public class AuthResource {
 
@@ -39,6 +42,7 @@ public class AuthResource {
     DmcClientService dmcClient;
 
     @GET
+    @Path("/auth")
     @Operation(
             operationId = "getAuth",
             summary = "Get list Users of AI Camera Service"
@@ -59,10 +63,14 @@ public class AuthResource {
             )
     )
     public Response getAuth(
-            @QueryParam("authorizeCode") Optional<String> authorizeCode) throws URISyntaxException {
+            @Context ContainerRequestContext requestContext,
+            @QueryParam("authorizeCode") String authorizeCode
+    ) {
 
-        String code = authorizeCode.orElseThrow(() -> new UnauthorizedException(ErrorsEnum.AUTH_FAILED));
-        String encodedCode = URLEncoder.encode(code, StandardCharsets.UTF_8);
+        if(authorizeCode == null)
+            throw new UnauthorizedException(ErrorsEnum.AUTH_FAILED);
+
+        String encodedCode = URLEncoder.encode(authorizeCode, StandardCharsets.UTF_8);
 
         DecryptAuth deAuth = new DecryptAuth();
         deAuth.setEncryptedToken(encodedCode);
@@ -71,14 +79,55 @@ public class AuthResource {
         AuthToken authToken = dmcClient.decryptToken(deAuth);
 
         String token = authToken.getToken();
+
         if(token.isBlank())
             throw new UnauthorizedException(ErrorsEnum.AUTH_FAILED);
         else {
 
-            return Response
-                    .temporaryRedirect(new URI(""))
-                    .build();
+            DmCUserInfo userInfo = dmcClient.getUserPermission("churn", "cads", token);
 
+            if(SecurityUtil.isUserHasPermission("churn", userInfo)) {
+
+                requestContext.setSecurityContext(new AppSecurityContext(userInfo));
+
+                NewCookie cookie = new NewCookie("accessToken", token);
+
+                return Response
+                        .ok()
+                        .entity(userInfo)
+                        .cookie(cookie)
+                        .build();
+            } else throw new PermissionDeniedException(ErrorsEnum.AUTH_NO_ACCESS);
         }
+    }
+
+    @GET
+    @Path("/logout")
+    @Operation(
+            operationId = "logout",
+            summary = "User logout of AI Camera Service"
+    )
+    @APIResponse(
+            responseCode = "200"
+    )
+    @APIResponse(
+            responseCode = "500",
+            description = "",
+            content = @Content(
+                    mediaType = MediaType.APPLICATION_JSON,
+                    schema = @Schema(implementation = ErrorResponse.class)
+            )
+    )
+    public Response logout(
+            @Context ContainerRequestContext requestContext
+    ) throws URISyntaxException {
+
+        NewCookie removeCookie = new NewCookie("accessToken", "");
+
+        return Response
+                .status(Response.Status.PERMANENT_REDIRECT)
+                .location(new URI("/"))
+                .cookie(removeCookie)
+                .build();
     }
 }

@@ -1,4 +1,4 @@
-package vn.fpt.web.exceptions;
+package vn.fpt.web.exceptions.mappers;
 
 import jakarta.ws.rs.NotFoundException;
 import jakarta.ws.rs.core.Response;
@@ -17,7 +17,7 @@ public class NotFoundExceptionMapper implements ExceptionMapper<NotFoundExceptio
     public Response toResponse(NotFoundException ex) {
         String errorId = UUID.randomUUID().toString();
 
-        log.error(errorId, ex.getMessage());
+        log.error(errorId, ex);
 
         return Response
                 .status(Response.Status.NOT_FOUND)

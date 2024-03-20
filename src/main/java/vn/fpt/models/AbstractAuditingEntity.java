@@ -5,7 +5,6 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 import vn.fpt.models.audit.AuditListener;
-import vn.fpt.secure.SecurityUtil;
 
 import java.io.Serial;
 import java.io.Serializable;
@@ -36,30 +35,4 @@ public abstract class AbstractAuditingEntity implements Serializable {
     @JsonIgnore
     private Instant lastModifiedDate = Instant.now();
 
-    @PrePersist
-    public void onPrePersist() {
-        audit(true);
-    }
-
-    @PreUpdate
-    public void onPreUpdate() {
-        audit(false);
-    }
-
-    @PreRemove
-    public void onPreRemove() {
-        audit(false);
-    }
-
-    private void audit(Boolean isNew) {
-        if(Boolean.TRUE.equals(isNew)) {
-            setCreatedBy(SecurityUtil.getCurrentAuditor().orElse(null));
-            setLastModifiedBy(SecurityUtil.getCurrentAuditor().orElse(null));
-            setCreatedDate(Instant.now());
-            setLastModifiedDate(Instant.now());
-        } else {
-            setLastModifiedBy(SecurityUtil.getCurrentAuditor().orElse(null));
-            setLastModifiedDate(Instant.now());
-        }
-    }
 }

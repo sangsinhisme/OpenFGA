@@ -3,11 +3,13 @@ package vn.fpt.models.auth;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 
 import java.util.List;
 
 @Getter
 @Setter
+@ToString
 public class DmCUserInfo {
 
     private int code;
@@ -30,4 +32,39 @@ public class DmCUserInfo {
     private List<String> adminRoles;
     private List<String> requestApps;
     private String realmName;
+
+    @Getter
+    @Setter
+    @ToString
+    public static class UserPermission {
+
+        private String name;
+        private String requestDomain;
+        private Attributes attributes;
+        private List<Permission> permissions;
+
+        @Getter
+        @Setter
+        @ToString
+        public static class Attributes {
+
+            private List<String> baseUrl;
+            private List<String> displayName;
+            private List<String> domain;
+            private List<String> imgPath;
+            private List<String> description;
+            private List<String> requestAccess;
+            private List<String> version;
+        }
+
+
+        @Getter
+        @Setter
+        @ToString
+        public static class Permission {
+            private String resource;
+            private List<String> roles;
+            private List<String> action;
+        }
+    }
 }

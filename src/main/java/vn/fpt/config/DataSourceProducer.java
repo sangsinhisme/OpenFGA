@@ -18,15 +18,14 @@ public class DataSourceProducer {
 
     @Inject
     @DataSource("portal")
-    AgroalDataSource usersDataSource;
-
+    AgroalDataSource portalDataSource;
 
     @Produces
     @Singleton
     @DefaultBean
     public AgroalDataSource dataSource() {
         if (dataSourceSupport.getInactiveNames().contains("portal")) {
-            return usersDataSource;
+            return portalDataSource;
         } else {
             return defaultDataSource;
         }
