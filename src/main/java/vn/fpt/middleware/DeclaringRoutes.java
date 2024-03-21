@@ -22,11 +22,6 @@ public class DeclaringRoutes {
     @Context
     ContainerRequestContext requestContext;
 
-    @Route(path = "/app/auth")
-    void auth(RoutingContext rc) {
-        rc.next();
-    }
-
     @Route(regex = "\\/api.*")
     @ActivateRequestContext
     void api(RoutingContext rc) {

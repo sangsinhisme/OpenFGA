@@ -11,7 +11,7 @@ import org.eclipse.microprofile.openapi.annotations.media.Schema;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 import vn.fpt.services.StreamingService;
-import vn.fpt.web.exceptions.ErrorResponse;
+import vn.fpt.web.errors.models.ErrorResponse;
 
 import java.io.IOException;
 import java.io.InputStream;

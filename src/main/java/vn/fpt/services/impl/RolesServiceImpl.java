@@ -4,12 +4,11 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.ws.rs.core.Response;
 import lombok.extern.slf4j.Slf4j;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
+import vn.fpt.config.ConfigsProvider;
 import vn.fpt.models.auth.AssignAppRole;
+import vn.fpt.models.auth.BaseObject;
 import vn.fpt.models.auth.RevokeAppRole;
-import vn.fpt.models.users.IamPagination;
-import vn.fpt.models.users.IamUserInfo;
 import vn.fpt.services.RolesService;
-import vn.fpt.services.UsersService;
 import vn.fpt.services.client.IamClientService;
 
 /**
@@ -45,5 +44,15 @@ public class RolesServiceImpl implements RolesService {
     @Override
     public Response revokeRole(String token, String userId, RevokeAppRole dto) {
         return iamClient.revokeRole(token, userId, dto);
+    }
+
+    @Override
+    public Response rolesIn(String token, String userId, BaseObject dto) {
+        return iamClient.rolesIn(token, userId, ConfigsProvider.APP_ID, dto);
+    }
+
+    @Override
+    public Response rolesOut(String token, String userId, BaseObject dto) {
+        return null;
     }
 }

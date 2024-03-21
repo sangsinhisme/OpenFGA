@@ -1,15 +1,16 @@
-package vn.fpt.web.exceptions.mappers;
+package vn.fpt.web.errors.mappers;
 
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.ext.ExceptionMapper;
 import jakarta.ws.rs.ext.Provider;
 import lombok.extern.slf4j.Slf4j;
-import vn.fpt.web.exceptions.ErrorResponse;
-import vn.fpt.web.exceptions.PermissionDeniedException;
-import vn.fpt.web.exceptions.ServiceException;
-import vn.fpt.web.exceptions.UnauthorizedException;
+import vn.fpt.web.errors.models.ErrorMessage;
+import vn.fpt.web.errors.models.ErrorResponse;
+import vn.fpt.web.errors.exceptions.NotAcceptableException;
+import vn.fpt.web.errors.exceptions.PermissionDeniedException;
+import vn.fpt.web.errors.exceptions.ServiceException;
+import vn.fpt.web.errors.exceptions.UnauthorizedException;
 
-import java.util.List;
 import java.util.UUID;
 
 @Slf4j
@@ -22,7 +23,7 @@ public class ServiceExceptionMapper implements ExceptionMapper<ServiceException>
 
         log.error(errorId, ex);
 
-        ErrorResponse.ErrorMessage errorMessage = new ErrorResponse.ErrorMessage(ex.getEntityName() + "." + ex.getErrorKey(), ex.getMessage());
+        ErrorMessage errorMessage = new ErrorMessage(ex.getEntityName() + "." + ex.getErrorKey(), ex.getMessage());
         ErrorResponse errorResponse = new ErrorResponse(errorId, errorMessage);
 
         if(ex.getClass().equals(UnauthorizedException.class)) {
@@ -35,6 +36,11 @@ public class ServiceExceptionMapper implements ExceptionMapper<ServiceException>
 
             return Response
                     .status(Response.Status.FORBIDDEN)
+                    .build();
+        } else if(ex.getClass().equals(NotAcceptableException.class)) {
+
+            return Response
+                    .status(Response.Status.NOT_ACCEPTABLE)
                     .build();
         } else {
 

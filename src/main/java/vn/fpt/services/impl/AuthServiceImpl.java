@@ -1,15 +1,16 @@
 package vn.fpt.services.impl;
 
 import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.ws.rs.container.ContainerRequestContext;
-import jakarta.ws.rs.core.SecurityContext;
+import jakarta.ws.rs.WebApplicationException;
 import lombok.extern.slf4j.Slf4j;
+import org.eclipse.microprofile.rest.client.inject.RestClient;
+import vn.fpt.models.auth.AuthToken;
+import vn.fpt.models.auth.DecryptAuth;
 import vn.fpt.models.auth.DmCUserInfo;
 import vn.fpt.services.AuthService;
-
-import java.security.Principal;
-import java.util.function.Function;
-import java.util.stream.Stream;
+import vn.fpt.services.client.DmcClientService;
+import vn.fpt.web.errors.ErrorsEnum;
+import vn.fpt.web.errors.exceptions.UnauthorizedException;
 
 /**
  * Auth Service Implement of {@link AuthService}.
@@ -18,45 +19,45 @@ import java.util.stream.Stream;
 @Slf4j
 @ApplicationScoped
 public class AuthServiceImpl implements AuthService {
+
+    @RestClient
+    DmcClientService dmcClient;
+
+    /**
+     * Set User Info into form MinIO.
+     *
+     * @param dto the arg of object.
+     *
+     * @return AuthToken dto of response
+     */
     @Override
-    public void setSecurityContext(ContainerRequestContext requestContext, DmCUserInfo userInfo) {
+    public AuthToken decryptToken(DecryptAuth dto) {
+        try {
+            return dmcClient.decryptToken(dto);
+        } catch (WebApplicationException ex) {
+            log.error(ex.getMessage());
 
-        requestContext.setSecurityContext(new SecurityContext() {
-            @Override
-            public Principal getUserPrincipal() {
-                return userInfo::getUsername;
-            }
+            throw new UnauthorizedException(ErrorsEnum.AUTH_FAILED);
+        }
+    }
 
-            @Override
-            public boolean isUserInRole(String targetRole) {
+    /**
+     * Get User Permission.
+     *
+     * @param appName the arg of object.
+     * @param realmName the arg of object.
+     * @param token the arg of object.
+     *
+     * @return DmCUserInfo dto of response.
+     */
+    @Override
+    public DmCUserInfo getUserPermission(String appName, String realmName, String token) {
+        try {
+            return dmcClient.getUserPermission(appName, realmName, token);
+        } catch (WebApplicationException ex) {
+           log.error(ex.getMessage());
 
-                Stream<Boolean> matchedRole = userInfo
-                        .getUserPermission()
-                        .stream()
-                        .flatMap(userPermission -> checkPermissionForRole(userPermission, targetRole));
-
-                return matchedRole.isParallel();
-            }
-
-            private Stream<Boolean> checkPermissionForRole(DmCUserInfo.UserPermission userPermission, String targetRole) {
-                return userPermission.getPermissions().stream()
-                        .flatMap(permission -> checkRoleInPermission(permission, targetRole));
-            }
-
-            private Stream<Boolean> checkRoleInPermission(DmCUserInfo.UserPermission.Permission permission, String targetRole) {
-                return permission.getRoles().stream()
-                        .map(targetRole::contains);
-            }
-
-            @Override
-            public boolean isSecure() {
-                return true;
-            }
-
-            @Override
-            public String getAuthenticationScheme() {
-                return null;
-            }
-        });
+           throw new UnauthorizedException(ErrorsEnum.AUTH_FAILED);
+        }
     }
 }

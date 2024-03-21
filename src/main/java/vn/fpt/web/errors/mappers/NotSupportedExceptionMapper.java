@@ -1,4 +1,4 @@
-package vn.fpt.web.exceptions.mappers;
+package vn.fpt.web.errors.mappers;
 
 import jakarta.ws.rs.NotSupportedException;
 import jakarta.ws.rs.core.Response;

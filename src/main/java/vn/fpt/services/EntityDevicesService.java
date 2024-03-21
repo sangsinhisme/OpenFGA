@@ -2,7 +2,7 @@ package vn.fpt.services;
 
 import vn.fpt.models.EntityDevice;
 import vn.fpt.services.dto.CreateEntityDTO;
-import vn.fpt.web.exceptions.ServiceException;
+import vn.fpt.web.errors.exceptions.ServiceException;
 
 import java.util.UUID;
 

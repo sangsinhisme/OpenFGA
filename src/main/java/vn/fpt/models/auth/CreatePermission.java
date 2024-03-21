@@ -13,7 +13,7 @@ public class CreatePermission {
     public Role role;
     public List<User> users;
     public Resource resource;
-    public List<Scope> scopes;
+    public List<BaseObject> scopes;
     public String app;
 
     @Getter

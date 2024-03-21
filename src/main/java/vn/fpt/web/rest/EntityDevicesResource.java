@@ -13,7 +13,7 @@ import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 import vn.fpt.services.EntityDevicesService;
 import vn.fpt.services.dto.CreateEntityDTO;
-import vn.fpt.web.exceptions.ErrorResponse;
+import vn.fpt.web.errors.models.ErrorResponse;
 
 import java.net.URI;
 import java.net.URISyntaxException;

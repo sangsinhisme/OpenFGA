@@ -16,11 +16,13 @@ import vn.fpt.models.auth.DmCUserInfo;
 import vn.fpt.secure.AppSecurityContext;
 import vn.fpt.secure.SecurityUtil;
 import vn.fpt.services.client.DmcClientService;
-import vn.fpt.web.exceptions.ErrorsEnum;
-import vn.fpt.web.exceptions.PermissionDeniedException;
-import vn.fpt.web.exceptions.UnauthorizedException;
+import vn.fpt.web.errors.ErrorsEnum;
+import vn.fpt.web.errors.exceptions.PermissionDeniedException;
+import vn.fpt.web.errors.exceptions.UnauthorizedException;
 
 import java.util.Locale;
+
+import static vn.fpt.config.ApplicationConfiguration.DEFAULT_LANGUAGE;
 
 @Slf4j
 @Traced
@@ -35,6 +37,11 @@ public class HttpFilters implements ContainerRequestFilter, ContainerResponseFil
     public void filter(ContainerRequestContext requestContext) throws PermissionDeniedException, UnauthorizedException {
 
         String authentication = requestContext.getHeaderString(HttpHeaders.AUTHORIZATION);
+        String language = requestContext.getHeaderString(HttpHeaders.CONTENT_LANGUAGE);
+
+        if (language == null) {
+            requestContext.getHeaders().putSingle(HttpHeaders.CONTENT_LANGUAGE, DEFAULT_LANGUAGE);
+        }
 
         if (authentication != null) {
 
@@ -47,18 +54,25 @@ public class HttpFilters implements ContainerRequestFilter, ContainerResponseFil
                     if (SecurityUtil.isUserHasPermission("churn", userInfo)) {
                         requestContext.setSecurityContext(new AppSecurityContext(userInfo));
                         AuditListener.setCurrentUser(userInfo.getUsername());
-                    } else throw new PermissionDeniedException(ErrorsEnum.AUTH_NO_ACCESS);
+                    } else {
+                        ErrorsEnum error = ErrorsEnum.AUTH_NO_ACCESS;
+                        error.setMessage("i18n/error_messages", language);
+
+                        throw new PermissionDeniedException(error);
+                    }
                 } catch (WebApplicationException ex) {
-                    log.warn(ex.getMessage());
+
+                    log.error(ex.getMessage());
+
                     throw new UnauthorizedException(ErrorsEnum.AUTH_FAILED);
                 }
             }
         }
-
     }
 
     @Override
     public void filter(ContainerRequestContext containerRequestContext, ContainerResponseContext containerResponseContext) {
+
         final var method = containerRequestContext
                 .getMethod()
                 .toUpperCase(Locale.ROOT);
@@ -71,5 +85,4 @@ public class HttpFilters implements ContainerRequestFilter, ContainerResponseFil
         }
         AuditListener.clearCurrentUser();
     }
-
 }

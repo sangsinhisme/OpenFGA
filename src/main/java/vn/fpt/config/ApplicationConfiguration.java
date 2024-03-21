@@ -9,6 +9,8 @@ import jakarta.enterprise.inject.Produces;
 
 public class ApplicationConfiguration {
 
+    public static final String DEFAULT_LANGUAGE = "en";
+
     @Produces
     @ApplicationScoped
     public MeterFilter enableHistogram() {

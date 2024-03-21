@@ -14,5 +14,5 @@ public class ImaResource {
     private String id;
     private String name;
     private String displayName;
-    private List<Scope> scopes;
+    private List<BaseObject> scopes;
 }

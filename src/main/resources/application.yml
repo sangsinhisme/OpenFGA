@@ -1,5 +1,5 @@
 application:
-  message: hello
+  id: ${APP_ID}
   secret-code: ${IAM_SECRET}
 
 quarkus:

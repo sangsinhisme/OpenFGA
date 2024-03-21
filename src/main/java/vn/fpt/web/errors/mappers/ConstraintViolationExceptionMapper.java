@@ -1,11 +1,11 @@
-package vn.fpt.web.exceptions.mappers;
+package vn.fpt.web.errors.mappers;
 
 import jakarta.validation.ConstraintViolationException;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.ext.ExceptionMapper;
 import jakarta.ws.rs.ext.Provider;
-import vn.fpt.constant.ErrorsKeyConstant;
-import vn.fpt.web.exceptions.ErrorResponse;
+import vn.fpt.web.errors.models.ErrorMessage;
+import vn.fpt.web.errors.models.ErrorResponse;
 
 import java.util.List;
 
@@ -14,8 +14,8 @@ public class ConstraintViolationExceptionMapper implements ExceptionMapper<Const
 
     @Override
     public Response toResponse(ConstraintViolationException ex) {
-        List<ErrorResponse.ErrorMessage> errorMessages = ex.getConstraintViolations().stream()
-                .map(constraintViolation -> new ErrorResponse.ErrorMessage(
+        List<ErrorMessage> errorMessages = ex.getConstraintViolations().stream()
+                .map(constraintViolation -> new ErrorMessage(
                         constraintViolation.getPropertyPath().toString(),
                         null,
                         constraintViolation.getMessage()

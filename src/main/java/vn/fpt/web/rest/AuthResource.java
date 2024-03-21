@@ -1,8 +1,7 @@
 package vn.fpt.web.rest;
 
-import jakarta.ws.rs.GET;
-import jakarta.ws.rs.Path;
-import jakarta.ws.rs.QueryParam;
+import jakarta.inject.Inject;
+import jakarta.ws.rs.*;
 import jakarta.ws.rs.container.ContainerRequestContext;
 import jakarta.ws.rs.core.*;
 import lombok.extern.slf4j.Slf4j;
@@ -12,18 +11,17 @@ import org.eclipse.microprofile.openapi.annotations.media.Content;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
-import org.eclipse.microprofile.rest.client.inject.RestClient;
 import vn.fpt.models.auth.AuthToken;
 import vn.fpt.models.auth.DecryptAuth;
 import vn.fpt.models.auth.DmCUserInfo;
 import vn.fpt.models.users.IamPagination;
 import vn.fpt.secure.AppSecurityContext;
 import vn.fpt.secure.SecurityUtil;
-import vn.fpt.services.client.DmcClientService;
-import vn.fpt.web.exceptions.ErrorResponse;
-import vn.fpt.web.exceptions.ErrorsEnum;
-import vn.fpt.web.exceptions.PermissionDeniedException;
-import vn.fpt.web.exceptions.UnauthorizedException;
+import vn.fpt.services.AuthService;
+import vn.fpt.web.errors.models.ErrorResponse;
+import vn.fpt.web.errors.ErrorsEnum;
+import vn.fpt.web.errors.exceptions.PermissionDeniedException;
+import vn.fpt.web.errors.exceptions.UnauthorizedException;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -38,8 +36,8 @@ public class AuthResource {
     @ConfigProperty(name = "application.secret-code")
     String IAM_SECRET;
 
-    @RestClient
-    DmcClientService dmcClient;
+    @Inject
+    AuthService authService;
 
     @GET
     @Path("/auth")
@@ -64,11 +62,19 @@ public class AuthResource {
     )
     public Response getAuth(
             @Context ContainerRequestContext requestContext,
+            @HeaderParam(HttpHeaders.CONTENT_LANGUAGE) String language,
             @QueryParam("authorizeCode") String authorizeCode
     ) {
 
-        if(authorizeCode == null)
-            throw new UnauthorizedException(ErrorsEnum.AUTH_FAILED);
+        ErrorsEnum error = null;
+
+        if (authorizeCode == null) {
+            // Define error key and setting new Message depending on http header Content-Language
+            error = ErrorsEnum.AUTH_NO_ACCESS;
+            error.setMessage("i18n/error_messages", language);
+
+            throw new UnauthorizedException(error);
+        }
 
         String encodedCode = URLEncoder.encode(authorizeCode, StandardCharsets.UTF_8);
 
@@ -76,7 +82,7 @@ public class AuthResource {
         deAuth.setEncryptedToken(encodedCode);
         deAuth.setSecretCode(IAM_SECRET);
 
-        AuthToken authToken = dmcClient.decryptToken(deAuth);
+        AuthToken authToken = authService.decryptToken(deAuth);
 
         String token = authToken.getToken();
 
@@ -84,9 +90,9 @@ public class AuthResource {
             throw new UnauthorizedException(ErrorsEnum.AUTH_FAILED);
         else {
 
-            DmCUserInfo userInfo = dmcClient.getUserPermission("churn", "cads", token);
+            DmCUserInfo userInfo = authService.getUserPermission("churn", "cads", token);
 
-            if(SecurityUtil.isUserHasPermission("churn", userInfo)) {
+            if (SecurityUtil.isUserHasPermission("churn", userInfo)) {
 
                 requestContext.setSecurityContext(new AppSecurityContext(userInfo));
 

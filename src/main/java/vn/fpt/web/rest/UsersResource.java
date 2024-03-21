@@ -1,12 +1,12 @@
 package vn.fpt.web.rest;
 
 import jakarta.inject.Inject;
-import jakarta.ws.rs.GET;
-import jakarta.ws.rs.Path;
-import jakarta.ws.rs.PathParam;
-import jakarta.ws.rs.QueryParam;
+import jakarta.ws.rs.*;
 import jakarta.ws.rs.container.ContainerRequestContext;
-import jakarta.ws.rs.core.*;
+import jakarta.ws.rs.core.Context;
+import jakarta.ws.rs.core.HttpHeaders;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 import lombok.extern.slf4j.Slf4j;
 import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.media.Content;
@@ -17,9 +17,9 @@ import vn.fpt.models.users.IamPagination;
 import vn.fpt.models.users.IamUserInfo;
 import vn.fpt.secure.AppSecurityContext;
 import vn.fpt.services.UsersService;
-import vn.fpt.web.exceptions.ErrorResponse;
-import vn.fpt.web.exceptions.ErrorsEnum;
-import vn.fpt.web.exceptions.PermissionDeniedException;
+import vn.fpt.web.errors.ErrorsEnum;
+import vn.fpt.web.errors.exceptions.PermissionDeniedException;
+import vn.fpt.web.errors.models.ErrorResponse;
 
 @Slf4j
 @Path("/api/users")
@@ -54,15 +54,14 @@ public class UsersResource {
                     schema = @Schema(implementation = ErrorResponse.class)
             )
     )
-    public Response inviteUser(@QueryParam("app") String app,
-                                @QueryParam("email") String email,
-                                @Context ContainerRequestContext requestContext) {
+    public Response inviteUser(@HeaderParam(HttpHeaders.AUTHORIZATION) String token,
+                               @QueryParam("app") String app,
+                               @QueryParam("email") String email,
+                               @Context ContainerRequestContext requestContext) {
 
-        String token = requestContext.getHeaderString(HttpHeaders.AUTHORIZATION);
-
-        IamUserInfo user = usersService.check(token, app, email);
+        usersService.invite(token, app, email);
         return Response
-                .ok(user)
+                .accepted()
                 .build();
     }
 
@@ -87,6 +86,7 @@ public class UsersResource {
             )
     )
     public Response getUsers(
+            @HeaderParam(HttpHeaders.AUTHORIZATION) String token,
             @QueryParam("first") Integer first,
             @QueryParam("max") Integer max,
             @QueryParam("app") String app,
@@ -95,10 +95,8 @@ public class UsersResource {
 
         AppSecurityContext appContext = (AppSecurityContext) requestContext.getSecurityContext();
 
-        if(!appContext.isOwner("admin-churn"))
+        if (!appContext.isOwner("admin-churn"))
             throw new PermissionDeniedException(ErrorsEnum.AUTH_NO_ACCESS);
-
-        String token = requestContext.getHeaderString(HttpHeaders.AUTHORIZATION);
 
         IamPagination<IamUserInfo> users = usersService.getUsers(token, first, max, app, order);
         return Response
@@ -127,11 +125,10 @@ public class UsersResource {
                     schema = @Schema(implementation = ErrorResponse.class)
             )
     )
-    public Response getUserById(@PathParam("id") String id,
+    public Response getUserById(@HeaderParam(HttpHeaders.AUTHORIZATION) String token,
+                                @PathParam("id") String id,
                                 @QueryParam("app") String app,
                                 @Context ContainerRequestContext requestContext) {
-
-        String token = requestContext.getHeaderString(HttpHeaders.AUTHORIZATION);
 
         IamUserInfo user = usersService.getUserById(token, id, app);
         return Response

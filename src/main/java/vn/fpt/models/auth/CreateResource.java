@@ -11,6 +11,6 @@ public class CreateResource {
 
     private String name;
     private String displayName;
-    private List<Scope> scopes;
+    private List<BaseObject> scopes;
     private String app;
 }

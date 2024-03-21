@@ -2,6 +2,7 @@ package vn.fpt.constant;
 
 public final class ErrorsKeyConstant {
 
+    public static final String INTERNAL_SERVER_ERROR = "internal_server_error";
     public static final String UNAUTHORIZED = "unauthorized";
     public static final String PERMISSION_DENIED = "permission_denied";
     public static final String ID_NULL = "id_null";

@@ -1,6 +1,7 @@
 package vn.fpt.services;
 
-import jakarta.ws.rs.container.ContainerRequestContext;
+import vn.fpt.models.auth.AuthToken;
+import vn.fpt.models.auth.DecryptAuth;
 import vn.fpt.models.auth.DmCUserInfo;
 
 /**
@@ -11,9 +12,22 @@ public interface AuthService {
     /**
      * Set User Info into form MinIO.
      *
-     * @param requestContext the arg of object.
-     * @param userInfo the arg of object.
+     * @param dto the arg of object.
+     *
+     * @return AuthToken dto of response
      */
-    void setSecurityContext(ContainerRequestContext requestContext, DmCUserInfo userInfo);
+    AuthToken decryptToken(DecryptAuth dto);
 
+    /**
+     * Get User Permission.
+     *
+     * @param appName the arg of object.
+     * @param realmName the arg of object.
+     * @param token the arg of object.
+     *
+     * @return DmCUserInfo dto of response.
+     */
+    DmCUserInfo getUserPermission(String appName,
+                                  String realmName,
+                                  String token);
 }

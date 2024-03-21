@@ -2,6 +2,9 @@ package vn.fpt.services.impl;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import jakarta.ws.rs.container.ContainerRequestContext;
+import jakarta.ws.rs.core.Context;
+import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.Response;
 import lombok.extern.slf4j.Slf4j;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
@@ -11,6 +14,8 @@ import vn.fpt.models.users.IamUserInfo;
 import vn.fpt.services.RolesService;
 import vn.fpt.services.UsersService;
 import vn.fpt.services.client.IamClientService;
+import vn.fpt.web.errors.ErrorsEnum;
+import vn.fpt.web.errors.exceptions.ServiceException;
 
 /**
  * Auth Service Implement of {@link UsersService}.
@@ -25,6 +30,9 @@ public class UsersServiceImpl implements UsersService {
 
     @Inject
     RolesService roleService;
+
+    @Context
+    ContainerRequestContext requestContext;
 
     /**
      * invite User access Service.
@@ -50,6 +58,11 @@ public class UsersServiceImpl implements UsersService {
             } catch (Exception ex) {
                 log.warn(ex.getMessage());
             }
+        } else {
+            ErrorsEnum error = ErrorsEnum.USERS_HAD_BEEN_INACTIVE;
+            error.setMessage("i18n/error_messages", requestContext.getHeaderString(HttpHeaders.CONTENT_LANGUAGE));
+
+            throw new ServiceException(error);
         }
     }
 
@@ -86,6 +99,7 @@ public class UsersServiceImpl implements UsersService {
 
         return iamClient.getUserById(token, id, app);
     }
+
     /**
      * Check User was existed in Service.
      *

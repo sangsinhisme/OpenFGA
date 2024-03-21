@@ -1,4 +1,6 @@
-package vn.fpt.web.exceptions;
+package vn.fpt.web.errors.exceptions;
+
+import vn.fpt.web.errors.ErrorsEnum;
 
 public class UnauthorizedException extends ServiceException {
 

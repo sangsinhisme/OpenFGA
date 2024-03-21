@@ -1,10 +1,12 @@
-package vn.fpt.web.exceptions;
+package vn.fpt.web.errors.exceptions;
 
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.ext.ExceptionMapper;
 import jakarta.ws.rs.ext.Provider;
 
 import org.hibernate.exception.ConstraintViolationException;
+import vn.fpt.web.errors.models.ErrorMessage;
+import vn.fpt.web.errors.models.ErrorResponse;
 
 import java.util.UUID;
 
@@ -14,7 +16,7 @@ public class HibernateDuplicatedException implements ExceptionMapper<ConstraintV
     @Override
     public Response toResponse(ConstraintViolationException ex) {
         String errorId = UUID.randomUUID().toString();
-        ErrorResponse.ErrorMessage errorMessage = new ErrorResponse.ErrorMessage(ex.getSQLException().getMessage());
+        ErrorMessage errorMessage = new ErrorMessage(ex.getSQLException().getMessage());
         ErrorResponse errorResponse = new ErrorResponse(errorId, errorMessage);
         return Response
                 .status(Response.Status.CONFLICT)

@@ -273,5 +273,33 @@ public interface IamClientService {
                         @PathParam("userId") String userId,
                         @RequestBody RevokeAppRole dto);
 
+    /**
+     * API User add Roles by self.
+     *
+     * @param token  header for request.
+     * @param userId resource of request.
+     * @param dto    body of request.
+     * @return AuthToken.
+     */
+    @PATCH
+    @Path("/cads/users/{userId}/app/{appId}/roles/in")
+    Response rolesIn(@HeaderParam(HttpHeaders.AUTHORIZATION) String token,
+                     @PathParam("userId") String userId,
+                     @PathParam("appId") String appId,
+                     @RequestBody BaseObject dto);
 
+    /**
+     * API User remove Roles by self.
+     *
+     * @param token  header for request.
+     * @param userId of request.
+     * @param dto    body of request.
+     * @return AuthToken.
+     */
+    @PATCH
+    @Path("/cads/users/{userId}/app/{appId}/roles/out")
+    Response rolesOut(@HeaderParam(HttpHeaders.AUTHORIZATION) String token,
+                      @PathParam("userId") String userId,
+                      @PathParam("appId") String appId,
+                      @RequestBody BaseObject dto);
 }

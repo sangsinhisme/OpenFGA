@@ -42,6 +42,7 @@ public interface UsersService {
     IamUserInfo getUserById(String token,
                             String id,
                             String app);
+
     /**
      * Check User was existed in Service.
      *
