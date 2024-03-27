@@ -9,6 +9,7 @@ import vn.fpt.models.auth.*;
 import vn.fpt.models.users.IamPagination;
 import vn.fpt.models.users.IamUserInfo;
 import vn.fpt.models.users.UpdateUserDetails;
+import vn.fpt.web.dto.PaginateRequest;
 
 @RegisterRestClient
 public interface IamClientService {
@@ -49,18 +50,13 @@ public interface IamClientService {
      * API get list Users.
      *
      * @param token header for request.
-     * @param first query param of request.
-     * @param max   query param of request.
-     * @param order query param of request.
+     * @param paginateRequest query param of request.
      * @return IamPagination<IamUserInfo>.
      */
     @GET
     @Path("/cads/users")
     IamPagination<IamUserInfo> getUsers(@HeaderParam(HttpHeaders.AUTHORIZATION) String token,
-                                        @QueryParam("first") Integer first,
-                                        @QueryParam("max") Integer max,
-                                        @QueryParam("app") String app,
-                                        @QueryParam("order") String order);
+                                        @BeanParam PaginateRequest paginateRequest);
 
     /**
      * API get a User Details.

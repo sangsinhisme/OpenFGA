@@ -26,11 +26,10 @@ public class ErrorsHandler
     @Override
     public Response toResponse(Throwable ex) {
         String errorId = UUID.randomUUID().toString();
-        String language = requestContext.getHeaderString(HttpHeaders.CONTENT_LANGUAGE);
 
         log.error(errorId, ex);
 
-        String defaultErrorMessage = ResourceBundle.getBundle("i18n/validation_messages"+ "_" + language).getString("system.error");
+        String defaultErrorMessage = ResourceBundle.getBundle("i18n/validation_messages", requestContext.getLanguage()).getString("system.error");
         ErrorMessage errorMessage = new ErrorMessage(defaultErrorMessage);
         ErrorResponse errorResponse = new ErrorResponse(errorId, errorMessage);
         return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(errorResponse).build();

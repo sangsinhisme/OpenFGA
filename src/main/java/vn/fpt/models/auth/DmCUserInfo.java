@@ -10,7 +10,7 @@ import java.util.List;
 @Getter
 @Setter
 @ToString
-public class DmCUserInfo {
+public class DmcUserInfo {
 
     private int code;
     private String messages;

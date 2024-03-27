@@ -1,8 +1,8 @@
-package vn.fpt.secure;
+package vn.fpt.security;
 
 import jakarta.enterprise.context.RequestScoped;
 import lombok.extern.slf4j.Slf4j;
-import vn.fpt.models.auth.DmCUserInfo;
+import vn.fpt.models.auth.DmcUserInfo;
 
 import java.util.stream.Stream;
 
@@ -13,9 +13,9 @@ public class SecurityUtil {
     private SecurityUtil() {
     }
 
-    public static boolean isUserHasPermission(String app, DmCUserInfo userInfo) {
+    public static boolean isUserHasPermission(String app, DmcUserInfo userInfo) {
 
-        Stream<DmCUserInfo.UserPermission> userPermissions = userInfo
+        Stream<DmcUserInfo.UserPermission> userPermissions = userInfo
                 .getUserPermission()
                 .stream();
 

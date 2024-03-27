@@ -12,17 +12,15 @@ import lombok.extern.slf4j.Slf4j;
 import org.eclipse.microprofile.opentracing.Traced;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 import vn.fpt.models.audit.AuditListener;
-import vn.fpt.models.auth.DmCUserInfo;
-import vn.fpt.secure.AppSecurityContext;
-import vn.fpt.secure.SecurityUtil;
+import vn.fpt.models.auth.DmcUserInfo;
+import vn.fpt.security.AppSecurityContext;
+import vn.fpt.security.SecurityUtil;
 import vn.fpt.services.client.DmcClientService;
 import vn.fpt.web.errors.ErrorsEnum;
 import vn.fpt.web.errors.exceptions.PermissionDeniedException;
 import vn.fpt.web.errors.exceptions.UnauthorizedException;
 
 import java.util.Locale;
-
-import static vn.fpt.config.ApplicationConfiguration.DEFAULT_LANGUAGE;
 
 @Slf4j
 @Traced
@@ -39,8 +37,9 @@ public class HttpFilters implements ContainerRequestFilter, ContainerResponseFil
         String authentication = requestContext.getHeaderString(HttpHeaders.AUTHORIZATION);
         String language = requestContext.getHeaderString(HttpHeaders.CONTENT_LANGUAGE);
 
-        if (language == null) {
-            requestContext.getHeaders().putSingle(HttpHeaders.CONTENT_LANGUAGE, DEFAULT_LANGUAGE);
+        if(language == null) {
+            Locale locale = Locale.getDefault();
+            requestContext.getHeaders().putSingle(HttpHeaders.CONTENT_LANGUAGE, locale.getLanguage());
         }
 
         if (authentication != null) {
@@ -49,21 +48,16 @@ public class HttpFilters implements ContainerRequestFilter, ContainerResponseFil
 
             if (!token.isBlank()) {
                 try {
-                    DmCUserInfo userInfo = dmcClient.getUserPermission("churn", "cads", token);
+                    DmcUserInfo userInfo = dmcClient.getUserPermission("churn", "cads", token);
 
                     if (SecurityUtil.isUserHasPermission("churn", userInfo)) {
                         requestContext.setSecurityContext(new AppSecurityContext(userInfo));
                         AuditListener.setCurrentUser(userInfo.getUsername());
-                    } else {
-                        ErrorsEnum error = ErrorsEnum.AUTH_NO_ACCESS;
-                        error.setMessage("i18n/error_messages", language);
+                    } else throw new PermissionDeniedException(ErrorsEnum.AUTH_NO_ACCESS);
 
-                        throw new PermissionDeniedException(error);
-                    }
                 } catch (WebApplicationException ex) {
 
                     log.error(ex.getMessage());
-
                     throw new UnauthorizedException(ErrorsEnum.AUTH_FAILED);
                 }
             }
@@ -71,18 +65,20 @@ public class HttpFilters implements ContainerRequestFilter, ContainerResponseFil
     }
 
     @Override
-    public void filter(ContainerRequestContext containerRequestContext, ContainerResponseContext containerResponseContext) {
+    public void filter(ContainerRequestContext requestContext, ContainerResponseContext responseContext) {
 
-        final var method = containerRequestContext
+        final var method = requestContext
                 .getMethod()
                 .toUpperCase(Locale.ROOT);
-        final var path = containerRequestContext
+        final var path = requestContext
                 .getUriInfo()
                 .getPath();
-        final int status = containerResponseContext.getStatus();
+        final int status = responseContext.getStatus();
+
         if (!path.contains("/q/metrics")) {
-            log.info("(HTTP) method: {}, path: {}, status: {}, username: {}", method, path, status, AuditListener.getCurrentUser());
+            log.info("(HTTP) method: {}, path: {}, status: {}, username: {}, locate: {}", method, path, status, AuditListener.getCurrentUser(), requestContext.getLanguage());
         }
         AuditListener.clearCurrentUser();
+
     }
 }

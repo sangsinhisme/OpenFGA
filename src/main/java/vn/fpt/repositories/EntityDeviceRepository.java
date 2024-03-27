@@ -16,4 +16,5 @@ import java.util.UUID;
 public class EntityDeviceRepository implements PanacheRepositoryBase<EntityDevice, UUID> {
 
     // put your custom logic here as instance methods
+
 }

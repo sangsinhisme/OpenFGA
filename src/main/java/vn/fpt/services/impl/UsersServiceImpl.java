@@ -4,7 +4,6 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.container.ContainerRequestContext;
 import jakarta.ws.rs.core.Context;
-import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.Response;
 import lombok.extern.slf4j.Slf4j;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
@@ -14,6 +13,8 @@ import vn.fpt.models.users.IamUserInfo;
 import vn.fpt.services.RolesService;
 import vn.fpt.services.UsersService;
 import vn.fpt.services.client.IamClientService;
+import vn.fpt.web.dto.InviteUserInput;
+import vn.fpt.web.dto.PaginateRequest;
 import vn.fpt.web.errors.ErrorsEnum;
 import vn.fpt.web.errors.exceptions.ServiceException;
 
@@ -37,30 +38,28 @@ public class UsersServiceImpl implements UsersService {
     /**
      * invite User access Service.
      *
-     * @param token the arg of request.
-     * @param app   the arg of request.
-     * @param email the arg of request.
+     * @param dto the arg of request.
      */
     @Override
-    public void invite(String token, String app, String email) {
+    public void invite(InviteUserInput dto) {
 
-        IamUserInfo userInfo = check(token, app, email);
+        IamUserInfo userInfo = check(dto);
 
         if(userInfo.isEnabled()) {
 
             AssignAppRole appRole = new AssignAppRole();
-            appRole.setApp(app);
+            appRole.setApp(dto.getApp());
             appRole.setRole("CHURN1");
 
             try {
-                Response response = roleService.assignRole(token, userInfo.getId(), appRole);
+                Response response = roleService.assignRole(dto.getToken(), userInfo.getId(), appRole);
                 log.info(response.toString());
             } catch (Exception ex) {
                 log.warn(ex.getMessage());
             }
         } else {
             ErrorsEnum error = ErrorsEnum.USERS_HAD_BEEN_INACTIVE;
-            error.setMessage("i18n/error_messages", requestContext.getHeaderString(HttpHeaders.CONTENT_LANGUAGE));
+            error.setMessage("i18n/error_messages", requestContext.getLanguage());
 
             throw new ServiceException(error);
         }
@@ -70,19 +69,14 @@ public class UsersServiceImpl implements UsersService {
      * invite User access Service.
      *
      * @param token the arg of request.
-     * @param first   the arg of request.
-     * @param max the arg of request.
-     * @param app the arg of request.
-     * @param order the arg of request.
+     * @param paginateRequest the arg of request.
+     * @return  IamPagination<IamUserInfo> dto of response.
      */
     @Override
     public IamPagination<IamUserInfo> getUsers(String token,
-                                        Integer first,
-                                        Integer max,
-                                        String app,
-                                        String order) {
+                                               PaginateRequest paginateRequest) {
 
-        return iamClient.getUsers(token, first, max, app, order);
+        return iamClient.getUsers(token, paginateRequest);
     }
 
     /**
@@ -103,15 +97,11 @@ public class UsersServiceImpl implements UsersService {
     /**
      * Check User was existed in Service.
      *
-     * @param token the arg of request.
-     * @param app   the arg of request.
-     * @param search the arg of request.
+     * @param dto the arg of request.
      */
     @Override
-    public IamUserInfo check(String token,
-                      String app,
-                      String search) {
+    public IamUserInfo check(InviteUserInput dto) {
 
-        return iamClient.check(token, app, search);
+        return iamClient.check(dto.getToken(), dto.getApp(), dto.getEmail());
     }
 }

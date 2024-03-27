@@ -6,10 +6,9 @@ import vn.fpt.constant.ErrorsKeyConstant;
 
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 import java.util.ResourceBundle;
-
-import static vn.fpt.config.ApplicationConfiguration.DEFAULT_LANGUAGE;
 
 @Getter
 public enum ErrorsEnum {
@@ -17,11 +16,11 @@ public enum ErrorsEnum {
     // System Errors
 
     // Auth Errors
-    AUTH_FAILED(EntitiesConstant.AUTH, ErrorsKeyConstant.UNAUTHORIZED, getResourceBundle("i18n/error_messages", DEFAULT_LANGUAGE).getString("auth.unauthorized")),
-    AUTH_NO_ACCESS(EntitiesConstant.AUTH, ErrorsKeyConstant.PERMISSION_DENIED, getResourceBundle("i18n/error_messages", DEFAULT_LANGUAGE).getString("auth.permission_denied")),
+    AUTH_FAILED(EntitiesConstant.AUTH, ErrorsKeyConstant.UNAUTHORIZED, getResourceBundle("i18n/error_messages", Locale.getDefault()).getString("auth.unauthorized")),
+    AUTH_NO_ACCESS(EntitiesConstant.AUTH, ErrorsKeyConstant.PERMISSION_DENIED, getResourceBundle("i18n/error_messages", Locale.getDefault()).getString("auth.permission_denied")),
 
     // User Errors
-    USERS_HAD_BEEN_INACTIVE(EntitiesConstant.USERS, ErrorsKeyConstant.HAD_BEEN_INACTIVE, getResourceBundle("i18n/error_messages", DEFAULT_LANGUAGE).getString("users.had_been_inactive")),
+    USERS_HAD_BEEN_INACTIVE(EntitiesConstant.USERS, ErrorsKeyConstant.HAD_BEEN_INACTIVE, getResourceBundle("i18n/error_messages", Locale.getDefault()).getString("users.had_been_inactive")),
 
     // ... add more cases here ...
 
@@ -32,23 +31,22 @@ public enum ErrorsEnum {
     private final String errorKey;
     private String message;
 
-    public static ResourceBundle getResourceBundle(String bundleName, String language) {
+    public static ResourceBundle getResourceBundle(String bundleName, Locale locale) {
 
-        if(language == null)
-            return ResourceBundle.getBundle(bundleName + "_" + DEFAULT_LANGUAGE);
+        if(locale == null)
+            return ResourceBundle.getBundle(bundleName, Locale.getDefault());
         else
-            return ResourceBundle.getBundle(bundleName + "_" + language);
+            return ResourceBundle.getBundle(bundleName, locale);
     }
-
 
     public void setMessage(String message) {
         this.message = message;
     }
 
-    public void setMessage(String bundleName, String language) {
+    public void setMessage(String bundleName, Locale locale) {
 
-        String tmp = getResourceBundle(bundleName, language).getString(getFullKey());
-        this.message = new String(tmp.getBytes(StandardCharsets.ISO_8859_1), StandardCharsets.UTF_8);
+        String messageContent = getResourceBundle(bundleName, locale).getString(getFullKey());
+        this.message = new String(messageContent.getBytes(StandardCharsets.ISO_8859_1), StandardCharsets.UTF_8);
     }
 
     public String getFullKey() {

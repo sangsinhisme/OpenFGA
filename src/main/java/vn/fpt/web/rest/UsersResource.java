@@ -11,12 +11,16 @@ import lombok.extern.slf4j.Slf4j;
 import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.media.Content;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
+import org.eclipse.microprofile.openapi.annotations.parameters.Parameter;
+import org.eclipse.microprofile.openapi.annotations.parameters.Parameters;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 import vn.fpt.models.users.IamPagination;
 import vn.fpt.models.users.IamUserInfo;
-import vn.fpt.secure.AppSecurityContext;
+import vn.fpt.security.AppSecurityContext;
 import vn.fpt.services.UsersService;
+import vn.fpt.web.dto.InviteUserInput;
+import vn.fpt.web.dto.PaginateRequest;
 import vn.fpt.web.errors.ErrorsEnum;
 import vn.fpt.web.errors.exceptions.PermissionDeniedException;
 import vn.fpt.web.errors.models.ErrorResponse;
@@ -54,12 +58,11 @@ public class UsersResource {
                     schema = @Schema(implementation = ErrorResponse.class)
             )
     )
-    public Response inviteUser(@HeaderParam(HttpHeaders.AUTHORIZATION) String token,
-                               @QueryParam("app") String app,
-                               @QueryParam("email") String email,
+    public Response inviteUser(@BeanParam InviteUserInput dto,
                                @Context ContainerRequestContext requestContext) {
 
-        usersService.invite(token, app, email);
+        usersService.invite(dto);
+
         return Response
                 .accepted()
                 .build();
@@ -69,6 +72,14 @@ public class UsersResource {
     @Operation(
             operationId = "getUsers",
             summary = "Get list Users of AI Camera Service"
+    )
+    @Parameters(
+            value = {
+                    @Parameter(name = "first", description = ""),
+                    @Parameter(name = "max", description = ""),
+                    @Parameter(name = "app", description = ""),
+                    @Parameter(name = "order", description = "")
+            }
     )
     @APIResponse(
             responseCode = "200",
@@ -87,10 +98,7 @@ public class UsersResource {
     )
     public Response getUsers(
             @HeaderParam(HttpHeaders.AUTHORIZATION) String token,
-            @QueryParam("first") Integer first,
-            @QueryParam("max") Integer max,
-            @QueryParam("app") String app,
-            @QueryParam("order") String order,
+            @BeanParam PaginateRequest paginateRequest,
             @Context ContainerRequestContext requestContext) {
 
         AppSecurityContext appContext = (AppSecurityContext) requestContext.getSecurityContext();
@@ -98,7 +106,7 @@ public class UsersResource {
         if (!appContext.isOwner("admin-churn"))
             throw new PermissionDeniedException(ErrorsEnum.AUTH_NO_ACCESS);
 
-        IamPagination<IamUserInfo> users = usersService.getUsers(token, first, max, app, order);
+        IamPagination<IamUserInfo> users = usersService.getUsers(token, paginateRequest);
         return Response
                 .ok(users)
                 .build();

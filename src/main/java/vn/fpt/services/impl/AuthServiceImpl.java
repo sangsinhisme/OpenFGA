@@ -6,7 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 import vn.fpt.models.auth.AuthToken;
 import vn.fpt.models.auth.DecryptAuth;
-import vn.fpt.models.auth.DmCUserInfo;
+import vn.fpt.models.auth.DmcUserInfo;
 import vn.fpt.services.AuthService;
 import vn.fpt.services.client.DmcClientService;
 import vn.fpt.web.errors.ErrorsEnum;
@@ -48,10 +48,10 @@ public class AuthServiceImpl implements AuthService {
      * @param realmName the arg of object.
      * @param token the arg of object.
      *
-     * @return DmCUserInfo dto of response.
+     * @return DmcUserInfo dto of response.
      */
     @Override
-    public DmCUserInfo getUserPermission(String appName, String realmName, String token) {
+    public DmcUserInfo getUserPermission(String appName, String realmName, String token) {
         try {
             return dmcClient.getUserPermission(appName, realmName, token);
         } catch (WebApplicationException ex) {

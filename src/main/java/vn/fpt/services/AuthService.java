@@ -2,7 +2,7 @@ package vn.fpt.services;
 
 import vn.fpt.models.auth.AuthToken;
 import vn.fpt.models.auth.DecryptAuth;
-import vn.fpt.models.auth.DmCUserInfo;
+import vn.fpt.models.auth.DmcUserInfo;
 
 /**
  * Service Interface for managing {@link AuthService}.
@@ -25,9 +25,9 @@ public interface AuthService {
      * @param realmName the arg of object.
      * @param token the arg of object.
      *
-     * @return DmCUserInfo dto of response.
+     * @return DmcUserInfo dto of response.
      */
-    DmCUserInfo getUserPermission(String appName,
+    DmcUserInfo getUserPermission(String appName,
                                   String realmName,
                                   String token);
 }

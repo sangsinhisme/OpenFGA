@@ -1,11 +1,11 @@
-package vn.fpt.secure;
+package vn.fpt.security;
 
 import jakarta.enterprise.inject.Default;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.core.SecurityContext;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
-import vn.fpt.models.auth.DmCUserInfo;
+import vn.fpt.models.auth.DmcUserInfo;
 
 import java.security.Principal;
 import java.util.ArrayList;
@@ -18,16 +18,16 @@ import java.util.stream.Stream;
 public class AppSecurityContext implements SecurityContext {
 
     @Inject
-    DmCUserInfo userInfo;
+    DmcUserInfo userInfo;
 
-    public AppSecurityContext(DmCUserInfo userInfo) {
+    public AppSecurityContext(DmcUserInfo userInfo) {
         this.userInfo = userInfo;
     }
 
-    public List<DmCUserInfo.UserPermission.Permission> getPermissions(DmCUserInfo userInfo) {
-        List<DmCUserInfo.UserPermission.Permission> permissions = new ArrayList<>();
+    public List<DmcUserInfo.UserPermission.Permission> getPermissions(DmcUserInfo userInfo) {
+        List<DmcUserInfo.UserPermission.Permission> permissions = new ArrayList<>();
         if (userInfo != null && userInfo.getUserPermission() != null) {
-            for (DmCUserInfo.UserPermission userPermission : userInfo.getUserPermission()) {
+            for (DmcUserInfo.UserPermission userPermission : userInfo.getUserPermission()) {
                 if (userPermission.getPermissions() != null) {
                     permissions.addAll(userPermission.getPermissions());
                 }
@@ -59,12 +59,12 @@ public class AppSecurityContext implements SecurityContext {
         return matchedRole.anyMatch(aBoolean -> aBoolean.equals(true));
     }
 
-    private Stream<Boolean> checkPermissionInRole(DmCUserInfo.UserPermission userPermission, String targetRole) {
+    private Stream<Boolean> checkPermissionInRole(DmcUserInfo.UserPermission userPermission, String targetRole) {
         return userPermission.getPermissions().stream()
                 .flatMap(permission -> checkRoleInPermission(permission, targetRole));
     }
 
-    private Stream<Boolean> checkRoleInPermission(DmCUserInfo.UserPermission.Permission permission, String targetRole) {
+    private Stream<Boolean> checkRoleInPermission(DmcUserInfo.UserPermission.Permission permission, String targetRole) {
         return permission.getRoles().stream()
                 .map(role -> role.contains(targetRole));
     }
