@@ -9,6 +9,7 @@ import vn.fpt.utils.ResourceBundleUtil;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Created by Khoa Vu.
@@ -37,11 +38,9 @@ public enum ErrorsEnum {
 
     // Ticket Errors
     TICKET_NOT_FOUND(EntitiesConstant.TICKET, ErrorsKeyConstant.NOT_FOUND, ""),
+    ;
 
-// ... add more cases here ...
-
-;
-
+    private static final Map<String, String> MESSAGE_CACHE = new ConcurrentHashMap<>();
     private static final Map<String, ErrorsEnum> ENUM_MAP = new HashMap<>();
     private final String entityName;
     private final String errorKey;
@@ -54,8 +53,9 @@ public enum ErrorsEnum {
     }
 
     public void setMessageWithExtendMessage(Locale locale, Object... args) {
-        String messageTemplate =
-                ResourceBundleUtil.getKeyWithResourceBundle(AppConstant.I18N_ERROR, locale, getFullKey());
+        String messageTemplate = MESSAGE_CACHE.computeIfAbsent(
+                getFullKey() + AppConstant.DOT + locale.toString(),
+                key -> ResourceBundleUtil.getKeyWithResourceBundle(AppConstant.I18N_ERROR, locale, getFullKey()));
         if (args.length > 0) {
             this.message = String.format(messageTemplate, args);
         } else {
