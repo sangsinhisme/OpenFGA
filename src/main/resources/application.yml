@@ -77,7 +77,7 @@ quarkus:
       scope: request-response
     "demo-client":
       url: ${DEMO_CLIENT_URL}
-      scope: ${DEMO_CLIENT_SCOPE}
+      scope: ${DEMO_CLIENT_SCOPE:jakarta.inject.Singleton}
 
   micrometer:
     runtime:
