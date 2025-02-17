@@ -1,8 +1,8 @@
 package vn.ftel.perm.utils;
 
+import lombok.extern.slf4j.Slf4j;
 import vn.ftel.perm.web.errors.ErrorsEnum;
 import vn.ftel.perm.web.errors.exceptions.ServiceException;
-import lombok.extern.slf4j.Slf4j;
 
 import java.util.Collections;
 import java.util.HashMap;

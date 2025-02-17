@@ -1,10 +1,10 @@
 package vn.ftel.perm.web.errors;
 
+import lombok.Getter;
 import vn.ftel.perm.constant.AppConstant;
 import vn.ftel.perm.constant.EntitiesConstant;
 import vn.ftel.perm.constant.ErrorsKeyConstant;
 import vn.ftel.perm.utils.ResourceBundleUtil;
-import lombok.Getter;
 
 import java.util.HashMap;
 import java.util.Locale;

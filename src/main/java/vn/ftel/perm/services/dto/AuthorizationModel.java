@@ -9,5 +9,4 @@ import java.io.Serializable;
 public abstract class AuthorizationModel implements Serializable {
     @ConfigProperty(name = "AUTHORIZATION_MODEL_ID")
     String authorizationModelId;
-
 }

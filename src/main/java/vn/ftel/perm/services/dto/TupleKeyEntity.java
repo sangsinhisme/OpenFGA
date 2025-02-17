@@ -11,5 +11,4 @@ public class TupleKeyEntity implements Serializable {
     private String user;
     private String relation;
     private String object;
-
 }

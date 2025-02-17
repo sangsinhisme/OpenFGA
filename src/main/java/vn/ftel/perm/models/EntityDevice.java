@@ -1,7 +1,5 @@
 package vn.ftel.perm.models;
 
-import vn.ftel.perm.models.enumeration.ActionStatus;
-import vn.ftel.perm.models.type.JsonObjectType;
 import io.vertx.core.json.JsonObject;
 import jakarta.persistence.Cacheable;
 import jakarta.persistence.Column;
@@ -17,6 +15,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.Type;
+import vn.ftel.perm.models.enumeration.ActionStatus;
+import vn.ftel.perm.models.type.JsonObjectType;
 
 import java.io.Serial;
 import java.io.Serializable;

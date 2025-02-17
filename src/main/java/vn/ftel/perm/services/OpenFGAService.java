@@ -14,21 +14,15 @@ public interface OpenFGAService {
     @POST
     @Path("/stores/{store_id}/check")
     Uni<Boolean> checkPermission(
-            @HeaderParam(HttpHeaders.AUTHORIZATION) String token,
-            @PathParam("store_id") String storeId
-    );
+            @HeaderParam(HttpHeaders.AUTHORIZATION) String token, @PathParam("store_id") String storeId);
 
     @POST
     @Path("/stores/{store_id}/check")
     Uni<Boolean> queryPermission(
-            @HeaderParam(HttpHeaders.AUTHORIZATION) String token,
-            @PathParam("store_id") String storeId
-    );
+            @HeaderParam(HttpHeaders.AUTHORIZATION) String token, @PathParam("store_id") String storeId);
 
     @POST
     @Path("/stores/{store_id}/write")
     Uni<Boolean> setPermission(
-            @HeaderParam(HttpHeaders.AUTHORIZATION) String token,
-            @PathParam("store_id") String storeId
-    );
+            @HeaderParam(HttpHeaders.AUTHORIZATION) String token, @PathParam("store_id") String storeId);
 }

@@ -1,6 +1,5 @@
 package vn.ftel.perm.web.rest;
 
-
 import io.smallrye.mutiny.Uni;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.GET;
@@ -48,14 +47,16 @@ public class OpenFGARoute {
     @POST
     @Path("/{user_id}")
     @Produces(MediaType.APPLICATION_JSON)
-    public Uni<RestResponse<Void>> setPermissionByUserId(@PathParam("user_id") String userId, @RequestBody String body) {
+    public Uni<RestResponse<Void>> setPermissionByUserId(
+            @PathParam("user_id") String userId, @RequestBody String body) {
         return Uni.createFrom().item(RestResponse.ok());
     }
 
     @POST
     @Path("/{user_id}/check")
     @Produces(MediaType.APPLICATION_JSON)
-    public Uni<RestResponse<Void>> checkUserOnPermission(@PathParam("user_id") String userId, @RequestBody String body) {
+    public Uni<RestResponse<Void>> checkUserOnPermission(
+            @PathParam("user_id") String userId, @RequestBody String body) {
         return Uni.createFrom().item(RestResponse.ok());
     }
 }

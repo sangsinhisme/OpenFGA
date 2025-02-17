@@ -1,8 +1,8 @@
 package vn.ftel.perm.web.errors.exceptions;
 
-import vn.ftel.perm.web.errors.ErrorsEnum;
 import jakarta.enterprise.context.RequestScoped;
 import lombok.Getter;
+import vn.ftel.perm.web.errors.ErrorsEnum;
 
 import java.io.Serial;
 

@@ -27,5 +27,4 @@ public class ConfigsProvider {
      */
     public static final String DATABASE_SCHEMA =
             ConfigProvider.getConfig().getValue("quarkus.hibernate-orm.database.default-schema", String.class);
-
 }

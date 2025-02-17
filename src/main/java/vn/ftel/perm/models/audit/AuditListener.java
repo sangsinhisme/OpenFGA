@@ -1,12 +1,12 @@
 package vn.ftel.perm.models.audit;
 
-import vn.ftel.perm.models.AbstractAuditingEntity;
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreRemove;
 import jakarta.persistence.PreUpdate;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
+import vn.ftel.perm.models.AbstractAuditingEntity;
 
 import java.time.Instant;
 

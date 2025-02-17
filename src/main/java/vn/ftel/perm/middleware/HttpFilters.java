@@ -1,7 +1,5 @@
 package vn.ftel.perm.middleware;
 
-import vn.ftel.perm.config.ConfigsProvider;
-import vn.ftel.perm.models.audit.AuditListener;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.ws.rs.container.ContainerRequestContext;
 import jakarta.ws.rs.container.ContainerRequestFilter;
@@ -11,6 +9,8 @@ import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.ext.Provider;
 import lombok.extern.slf4j.Slf4j;
 import org.eclipse.microprofile.opentracing.Traced;
+import vn.ftel.perm.config.ConfigsProvider;
+import vn.ftel.perm.models.audit.AuditListener;
 
 import java.io.IOException;
 import java.io.OutputStream;

@@ -1,7 +1,5 @@
 package vn.ftel.perm.middleware;
 
-import vn.ftel.perm.models.audit.AuditListener;
-import vn.ftel.perm.security.AppSecurityContext;
 import io.smallrye.mutiny.Uni;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.ws.rs.container.ContainerRequestContext;
@@ -9,6 +7,8 @@ import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.Response;
 import lombok.extern.slf4j.Slf4j;
 import org.jboss.resteasy.reactive.server.ServerRequestFilter;
+import vn.ftel.perm.models.audit.AuditListener;
+import vn.ftel.perm.security.AppSecurityContext;
 
 import java.util.Locale;
 
@@ -34,10 +34,10 @@ public class DeclaringRoutes {
         return Uni.createFrom().item(() -> {
             // Add your authentication logic here
             // Example:
-//            String authHeader = requestContext.getHeaderString(HttpHeaders.AUTHORIZATION);
-//            if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-//                return Response.status(Response.Status.UNAUTHORIZED).build();
-//            }
+            //            String authHeader = requestContext.getHeaderString(HttpHeaders.AUTHORIZATION);
+            //            if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            //                return Response.status(Response.Status.UNAUTHORIZED).build();
+            //            }
             // Fake authentication for demonstration purposes
             String username = "khoavu882@gmail.com";
             requestContext.setSecurityContext(new AppSecurityContext(username));
