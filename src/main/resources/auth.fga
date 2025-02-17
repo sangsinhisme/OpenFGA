@@ -1,0 +1,20 @@
+model
+  schema 1.1
+
+type user
+
+type role
+  relations
+    define member: [user]
+
+type feature
+  relations
+    define create: [user, role#member] or create from parent
+    define delete: [user, role#member] or delete from parent
+    define parent: [feature]
+    define request_access: [user, role#member] or request_access from parent
+    define search: [user, role#member] or search from parent
+    define share: [user, role#member] or share from parent
+    define update: [user, role#member] or update from parent
+    define use: [user, role#member] or use from parent
+    define view: [user, role#member] or view from parent

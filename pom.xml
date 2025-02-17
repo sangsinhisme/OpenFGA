@@ -3,7 +3,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
-  <groupId>com.github.kaivu</groupId>
+  <groupId>vn.ftel.iam</groupId>
   <artifactId>quarkus-rest</artifactId>
   <version>1.0.0</version>
   <properties>
@@ -15,7 +15,6 @@
     <jackson-datatype.version>2.17.3</jackson-datatype.version>
     <mapstruct.version>1.5.5.Final</mapstruct.version>
     <maven.compiler.release>17</maven.compiler.release>
-    <minio.version>8.5.11</minio.version>
     <opentracing.version>1.0.0</opentracing.version>
     <palantir.version>2.47.0</palantir.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -152,11 +151,6 @@
       <artifactId>lombok</artifactId>
       <version>${lombok.version}</version>
       <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>io.minio</groupId>
-      <artifactId>minio</artifactId>
-      <version>${minio.version}</version>
     </dependency>
 
     <!-- Test Dependencies -->

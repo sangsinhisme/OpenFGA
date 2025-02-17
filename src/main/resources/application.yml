@@ -67,14 +67,12 @@ quarkus:
       hosts: ${REDIS_KIND_CONNECT}://${REDIS_HOST}:${REDIS_PORT}
       timeout: ${REDIS_CONNECTION_TIMEOUT}
 
-  minio:
-    url: ${MINIO_URL}
-    access-key: ${MINIO_ACCESS_KEY}
-    secret-key: ${MINIO_SECRET_KEY}
-
   rest-client:
     logging:
       scope: request-response
+    "vn.ftel.perm.services.OpenFGAService":
+        url: ${OPEN_FGA_SERVICE_URL}
+        scope: ${OPEN_FGA_SERVICE_SCOPE}
     "demo-client":
       url: ${DEMO_CLIENT_URL}
       scope: ${DEMO_CLIENT_SCOPE:jakarta.inject.Singleton}
@@ -90,13 +88,10 @@ quarkus:
     trust-all: true
 
   smallrye-openapi:
-    info-title: Demo Service
+    info-title: Permission Service
     info-version: 1.0.0
-    info-description: Just an example service
-    info-terms-of-service: Your terms here
-    info-contact-email: khoavu882@gmail.com
-    info-contact-name: Vu Dang Khoa
-    info-contact-url: http://aomacannada.can
+    info-description: Permission Service
+    info-terms-of-service: Permission Service
     info-license-name: Apache 2.0
     info-license-url: https://www.apache.org/licenses/LICENSE-2.0.html
     security-scheme: jwt
