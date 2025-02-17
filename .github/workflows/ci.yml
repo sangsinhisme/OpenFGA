@@ -1,0 +1,30 @@
+name: Quarkus Build and Deploy
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    env:
+      ENABLE_QUARKUS_MANAGEMENT: ${{ secrets.ENABLE_QUARKUS_MANAGEMENT }}
+      OPEN_FGA_SERVICE_URL: ${{ secrets.OPEN_FGA_SERVICE_URL }}
+      OPEN_FGA_SERVICE_SCOPE: ${{ secrets.OPEN_FGA_SERVICE_SCOPE }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Java
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'  # Specify your Java version
+
+      - name: Build Quarkus app with Maven
+        run: mvn clean package -Dquarkus.management.enabled=${{ secrets.ENABLE_QUARKUS_MANAGEMENT }}
+
+      - name: Deploy the app (optional)
+        run: ./deploy.sh
